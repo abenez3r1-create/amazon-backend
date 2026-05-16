@@ -13,14 +13,14 @@ app.get("/", (req, res) => {
 });
 app.post("/payment/create", async (req, res) => {
   try {
-    const total = req.query.total;
-    if (total > 0) {
+    const total = Number(req.query.total);
+    if (!total || total <= 0) {
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: total,
+        amount: total * 100,
         currency: "usd",
       });
       res.status(201).send({
-        clientSecret: paymentIntent.id,
+        clientSecret: paymentIntent.client_secret,
       });
     } else {
       res.status(403).send({
@@ -33,6 +33,8 @@ app.post("/payment/create", async (req, res) => {
     });
   }
 });
-app.listen(3000, (req, res) => {
-  console.log("Server running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
